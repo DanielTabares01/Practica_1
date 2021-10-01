@@ -1,0 +1,48 @@
+import numpy as np
+from sklearn.datasets import load_iris
+import matplotlib.pyplot as plt
+
+class Perceptron:
+  def __init__(self, alfa, n_iter):   
+    self.alfa = alfa              # Alfa es la tasa de aprendizaje.
+    self.n_iter = n_iter          # n_iter es el número de iteraciones.
+
+  def net_input(self, X):      # Realizamos el producto de matrices W*X.          
+    z = np.dot(X, self.w[1:]) + self.w[0]    # Operación de actualización de pesos.
+    return z
+
+  def predict(self, X):    # Llevamos el producto de matrices a la función de activación que devuelve 0 o 1.
+    phi  = np.where(self.net_input(X) >= 0.0, 1, 0)
+    return phi  
+
+  def entrenar(self, X, y):    #Entrenamos la red.
+    self.w = np.array([0.,0.,0.])  #Definimos los pesos en un principio. 
+    self.errores = []
+
+    for i in range(self.n_iter):   #Con este bucle for actualizamos los pesos por cada iteración.
+      errores = 0
+      for xi, target in zip(X, y):
+        update = self.alfa*(target - self.predict(xi))  #Fórmula de actualización de pesos.
+
+# El operador += sirve para sumar a la variable de la izquierda el valor de la derecha, así actualizamos.
+
+        self.w[0] += update
+        self.w[1:] += update * xi 
+        errores += int(update != 0.0)
+
+      self.errores.append(errores) 
+
+      if i == self.n_iter-1:       # Mostramos los resultados de cada iteración para medir el progreso.
+        print("Se han obtenido "+str(errores)+" errores en la última iteración. La precisión es del "+str((len(y)-errores)/len(y)*100)+"%.")
+      else:
+        print("Se han obtenido "+str(errores)+" errores en la iteración número "+str(i+1)+".")
+
+    return self    
+
+# Al acabar el bucle de iteraciones el perceptrón ha finalizado su entrenamiento y está listo para predicciones.
+
+iris = load_iris()
+X = iris.data[:100,[0,2]]
+Y = iris.target[:100]
+ppn = Perceptron(0.1, 10)
+ppn.entrenar(X,Y)
